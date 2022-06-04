@@ -24,47 +24,25 @@ import {
   debounce,
   filter,
 } from "rxjs/operators";
+import { renderGameBoard } from "./rendering";
 
-const GAME_BOARD_WIDTH = 10;
-const GAME_BOARD_HEIGHT = 10;
+export const GAME_BOARD_WIDTH = 10;
+export const GAME_BOARD_HEIGHT = 8;
 
-type GameState = {
+export type GameState = {
   player: { x: number; y: number };
 };
 
-const blankCells = () =>
-  Array.from({ length: GAME_BOARD_WIDTH }).map(() =>
-    Array.from({ length: GAME_BOARD_HEIGHT }).map(() => "")
+export const blankCells = () =>
+  Array.from({ length: GAME_BOARD_HEIGHT }).map(() =>
+    Array.from({ length: GAME_BOARD_WIDTH }).map(() => "")
   );
 
-const gameBoard: GameState = {
+const initialGameBoard: GameState = {
   player: {
-    x: 5,
-    y: 5,
+    x: 4,
+    y: 4,
   },
-};
-
-const renderGameBoard = ({ player }: GameState) => {
-  const cells = blankCells();
-  cells[player.y][player.x] = "player";
-  const outerDiv = document.createElement("div");
-  outerDiv.classList.add("outer");
-  const rows = cells.map((row) => {
-    const rowDiv = document.createElement("div");
-    rowDiv.classList.add("row");
-    const cellDivs = row.map((val) => {
-      const cell = document.createElement("div");
-      cell.classList.add("cell");
-      if (val) {
-        cell.classList.add(val);
-      }
-      return cell;
-    });
-    rowDiv.append(...cellDivs);
-    return rowDiv;
-  });
-  outerDiv.append(...rows);
-  document.body.replaceChildren(outerDiv);
 };
 
 const moves = {
@@ -80,14 +58,30 @@ const sPlayerMove = sKeydown.pipe(
   filter((res) => Boolean(res)),
   startWith({ x: 0, y: 0 })
 );
-const sGameBoard = of(gameBoard).pipe(
-  combineLatestWith(sPlayerMove),
-  map(([board, moves]) => {
-    console.log(moves);
-    board.player.x += moves.x || 0;
-    board.player.y += moves.y || 0;
-    return board;
-  })
+
+const sGameBoard = sPlayerMove.pipe(
+  scan((lastBoard, { x, y }) => {
+    const newX = lastBoard.player.x + (x || 0);
+    const newY = lastBoard.player.y + (y || 0);
+    if (
+      !(
+        newX >= 0 &&
+        newY >= 0 &&
+        newX < GAME_BOARD_WIDTH &&
+        newY < GAME_BOARD_HEIGHT
+      )
+    ) {
+      return lastBoard;
+    }
+
+    return {
+      ...lastBoard,
+      player: {
+        x: newX,
+        y: newY,
+      },
+    };
+  }, initialGameBoard)
 );
 
 sGameBoard.subscribe(renderGameBoard);
