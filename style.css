@@ -1,0 +1,25 @@
+.outer {
+	display: flex;
+	flex-direction: column;
+}
+
+.row {
+	display: flex;
+	flex-direction: row;
+}
+
+.cell {
+	margin: 10px;
+	background-color: darkkhaki;
+	display: block;
+	width: 5vw;
+	height: 5vw;
+	display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+}
+
+.cell.player {
+	background-color: green;
+}
