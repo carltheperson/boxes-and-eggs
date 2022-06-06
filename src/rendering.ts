@@ -4,10 +4,13 @@ let savedCellDivs: HTMLDivElement[][] | null = null;
 
 // Ah beautiful stateful code
 
-export const renderGameBoard = ({ player }: GameState) => {
+export const renderGameBoard = ({ player, zombies }: GameState) => {
   const cells = blankCells();
   cells[player.y][player.x] = "player";
-  console.log("HEare");
+  zombies.forEach(({ x, y }) => {
+    cells[x][y] = "zombie";
+  });
+
   if (savedCellDivs) {
     savedCellDivs.forEach((row, y) =>
       row.forEach((cell, x) => (cell.className = "cell " + cells[y][x] || ""))
