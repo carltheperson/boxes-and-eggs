@@ -1,3 +1,7 @@
+:root {
+	--width: min(97vh, 40vw);
+}
+
 body {
 	background-color: rgb(182, 182, 182);
 	font-family: sans-serif;
@@ -5,30 +9,33 @@ body {
 	font-size: 10px;
 }
 
+
 .outer {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: stretch;
+	height: var(--width);
 }
 
 .row {
 	display: flex;
 	flex-direction: row;
+	flex-basis: 100%;
+	align-items: stretch;
+	width: var(--width);
 }
 
 .cell {
 	margin: 4px;
 	background-color: rgb(197, 197, 197);
 	display: block;
-	width: 4vw;
-	height: 4vw;
-	flex-grow: 1;
 	display: flex;
+	flex-basis: 100%;
   justify-content: center;
   align-content: center;
   align-items: center;
 	box-sizing: border-box;
-	border: 2px solid rgb(214, 214, 214);
+	border: 4px solid rgb(214, 214, 214);
 	box-shadow: 5px 5px 2px 2px #586e7411;
 }
 
@@ -58,7 +65,9 @@ body {
 .cell.zombie {
 	background-color: rgb(168, 34, 0);
 	border: 4px solid black;
+	box-sizing: border-box;
 	opacity: 1;
+	padding: 0;
 }
 
 .cell.egg {
@@ -67,4 +76,28 @@ body {
 
 .both {
 	background-color: black;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: var(--width);
+	margin: auto;
+	overflow: hidden;
+}
+
+.score-container {
+	display: flex;
+	width: 100%;
+	justify-content: space-between;
+	padding: 0 5px;
+	margin-bottom: -5px;
+	box-sizing: border-box;
 }

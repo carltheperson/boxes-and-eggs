@@ -17,31 +17,33 @@ const { sAdd: sChangeEggAdd, sUpdate: sChangeEggUpdate } = eggs(sState, sTime);
 sPlayerChange
   .pipe(
     withLatestFrom(
+      sTime,
       sState,
       sZombiesChange,
       sChangeEggAdd,
       sChangeEggUpdate,
       sGameOver
     ),
-    map(([playerL, state, zombieLs, eggAddLs, eggUpdateLs, gameOverL]) => {
-      const allLamdas: GameStateLamda[] = [
-        playerL,
-        ...zombieLs,
-        ...eggAddLs,
-        ...eggUpdateLs,
-        gameOverL,
-      ];
-      return allLamdas.reduce((state, lamda) => {
-        return lamda(state);
-      }, state);
-    }),
-    tap((state) => {
-      if (state.gameOver) {
-        setTimeout(() => {
-          alert("Game over");
-        }, 10);
+    map(
+      ([playerL, time, state, zombieLs, eggAddLs, eggUpdateLs, gameOverL]) => {
+        if (state.gameOver) {
+          return state;
+        }
+        const allLamdas: GameStateLamda[] = [
+          playerL,
+          ...zombieLs,
+          ...eggAddLs,
+          ...eggUpdateLs,
+          gameOverL,
+        ];
+        return {
+          ...allLamdas.reduce((state, lamda) => {
+            return lamda(state);
+          }, state),
+          score: time,
+        };
       }
-    })
+    )
   )
   .subscribe((state) => sState.next(state));
 

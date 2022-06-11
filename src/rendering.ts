@@ -3,17 +3,13 @@ import {
   GameState,
   GAME_BOARD_HEIGHT,
   GAME_BOARD_WIDTH,
+  moves,
 } from "./constants";
 import { coordsToKey } from "./utils";
 
 // Ah beautiful stateful code
 
 const divs: Record<CoordsString, HTMLDivElement> = {};
-
-const blankCells = () =>
-  Array.from({ length: GAME_BOARD_HEIGHT }).map(() =>
-    Array.from({ length: GAME_BOARD_WIDTH }).map(() => "")
-  );
 
 export const createBoard = () => {
   const outerDiv = document.createElement("div");
@@ -29,13 +25,37 @@ export const createBoard = () => {
       rowDiv.append(cellDiv);
     }
   }
-  document.body.replaceChildren(outerDiv);
+  document.querySelector(".container")!.append(outerDiv);
 };
+
+// Prevent arrow keys moving page donw
+document.addEventListener("keydown", (e) => {
+  if (Object.keys(moves).includes(e.key)) {
+    e.preventDefault();
+  }
+});
 
 const clearBoard = () => {
   Object.entries(divs).forEach(([, div]) => {
     div.className = "cell";
   });
+};
+
+const highScoreEl = document.querySelector<HTMLHeadingElement>(".high-score")!;
+const scoreEl = document.querySelector<HTMLHeadingElement>(".score")!;
+
+let highScore = parseInt(localStorage["high-score"]) || 0;
+highScoreEl.innerText = "High score: " + highScore;
+
+const updateHighScore = (score: number) => {
+  if (score > highScore) {
+    highScoreEl.innerText = "High score: " + score;
+    localStorage["high-score"] = score;
+    highScore = score;
+  }
+};
+const updateScore = (score: number) => {
+  scoreEl.innerText = "Score: " + score;
 };
 
 export const renderGameBoard = (state: GameState) => {
@@ -55,16 +75,6 @@ export const renderGameBoard = (state: GameState) => {
     }, {}),
   } as Record<string, string[]>;
 
-  for (let i = 0; i < GAME_BOARD_HEIGHT; i++) {
-    for (let j = 0; j < GAME_BOARD_WIDTH; j++) {
-      const zombie = state.zombies[coordsToKey({ x: j, y: i })];
-      const egg = state.eggs[coordsToKey({ x: j, y: i })];
-      if (zombie && egg) {
-        chars[coordsToKey({ x: j, y: i })] = ["both"];
-      }
-    }
-  }
-
   clearBoard();
   Object.entries(chars).forEach(([coords, char]) => {
     const div = divs[coords as CoordsString];
@@ -73,43 +83,11 @@ export const renderGameBoard = (state: GameState) => {
     });
   });
 
-  console.log(
-    "Zombies",
-    Object.keys(state.zombies).length,
-    "eggs",
-    Object.keys(state.eggs).length
-  );
+  if (state.gameOver) {
+    (document.querySelector(".outer") as HTMLDivElement).style.backgroundColor =
+      "red";
+  }
 
-  // const cells = blankCells();
-  // cells[player.y][player.x] = "player";
-  // zombies.forEach(({ x, y }) => {
-  //   cells[x][y] = "zombie";
-  // });
-
-  // if (savedCellDivs) {
-  //   savedCellDivs.forEach((row, y) =>
-  //     row.forEach((cell, x) => (cell.className = "cell " + cells[y][x] || ""))
-  //   );
-  //   return;
-  // }
-  // savedCellDivs = blankCells() as unknown as HTMLDivElement[][];
-  // const outerDiv = document.createElement("div");
-  // outerDiv.classList.add("outer");
-  // const rows = cells.map((row, y) => {
-  //   const rowDiv = document.createElement("div");
-  //   rowDiv.classList.add("row");
-  //   const cellDivs = row.map((val, x) => {
-  //     const cell = document.createElement("div");
-  //     cell.classList.add("cell");
-  //     if (val) {
-  //       cell.classList.add(val);
-  //     }
-  //     savedCellDivs[y][x] = cell;
-  //     return cell;
-  //   });
-  //   rowDiv.append(...cellDivs);
-  //   return rowDiv;
-  // });
-  // outerDiv.append(...rows);
-  // document.body.replaceChildren(outerDiv);
+  updateScore(state.score);
+  updateHighScore(state.score);
 };
