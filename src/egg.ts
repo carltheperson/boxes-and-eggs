@@ -1,25 +1,43 @@
 import { BehaviorSubject, concat, map, Observable, withLatestFrom } from "rxjs";
-import { CoordsString, GameState, GameStateLamda } from "./constants";
+import {
+  CoordsString,
+  GameState,
+  GameStateLamda,
+  HATCH_CHANCE,
+  HATCH_TIME,
+} from "./constants";
 import { coordsToKey, getCoordsFromKey, isOccupied } from "./utils";
 
 export const eggs = (
   sState: BehaviorSubject<GameState>,
   sTime: Observable<number>
 ) => {
-  const sAddEgg = sTime.pipe(
+  const sAdd = sTime.pipe(
     withLatestFrom(sState),
     map(([_, state]) => {
       return Object.keys(state.zombies)
-        .map((coordKey) => {
-          return Math.random() < 0.8
+        .map((_, i) => {
+          return Math.random() < 1 - HATCH_CHANCE
             ? null
             : (state: GameState) => {
-                const zombieCoords = coordKey as CoordsString;
+                const zombieCoords = Object.keys(state.zombies)[
+                  i
+                ] as CoordsString;
+                const eggCoords = state.zombies[zombieCoords].lastCoords;
+
+                if (
+                  !eggCoords ||
+                  state.zombies[eggCoords] ||
+                  state.player.coords === eggCoords
+                ) {
+                  return state;
+                }
+
                 return {
                   ...state,
                   eggs: {
                     ...state.eggs,
-                    [zombieCoords]: { hatchTime: 0 },
+                    [eggCoords]: { hatchTime: 0 },
                   },
                 };
               };
@@ -28,7 +46,7 @@ export const eggs = (
     })
   );
 
-  const sUpdateEgg = sTime.pipe(
+  const sUpdate = sTime.pipe(
     withLatestFrom(sState),
     map(([_, state]): GameStateLamda[] => {
       return Object.keys(state.eggs).map((key) => {
@@ -41,7 +59,7 @@ export const eggs = (
 
           const { hatchTime } = state.eggs[coordKey];
 
-          if (hatchTime == 3) {
+          if (hatchTime == HATCH_TIME) {
             delete state.eggs[coordKey];
             return {
               ...state,
@@ -64,12 +82,12 @@ export const eggs = (
     })
   );
 
-  const sChange = sAddEgg.pipe(
-    withLatestFrom(sUpdateEgg),
-    map(([changes1, changes2]) => {
-      return [...changes1, ...changes2];
-    })
-  );
+  // const sChange = sAddEgg.pipe(
+  //   withLatestFrom(sUpdateEgg),
+  //   map(([changes1, changes2]) => {
+  //     return [...changes1, ...changes2];
+  //   })
+  // );
 
-  return { sChange };
+  return { sAdd, sUpdate };
 };

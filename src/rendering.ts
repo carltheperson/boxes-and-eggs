@@ -1,26 +1,85 @@
-import { CoordsString, GameState } from "./constants";
-
-let savedCellDivs: HTMLDivElement[][] | null = null;
+import {
+  CoordsString,
+  GameState,
+  GAME_BOARD_HEIGHT,
+  GAME_BOARD_WIDTH,
+} from "./constants";
+import { coordsToKey } from "./utils";
 
 // Ah beautiful stateful code
 
+const divs: Record<CoordsString, HTMLDivElement> = {};
+
+const blankCells = () =>
+  Array.from({ length: GAME_BOARD_HEIGHT }).map(() =>
+    Array.from({ length: GAME_BOARD_WIDTH }).map(() => "")
+  );
+
+export const createBoard = () => {
+  const outerDiv = document.createElement("div");
+  outerDiv.classList.add("outer");
+  for (let i = 0; i < GAME_BOARD_HEIGHT; i++) {
+    const rowDiv = document.createElement("div");
+    outerDiv.append(rowDiv);
+    rowDiv.classList.add("row");
+    for (let j = 0; j < GAME_BOARD_WIDTH; j++) {
+      const cellDiv = document.createElement("div");
+      cellDiv.classList.add("cell");
+      divs[coordsToKey({ x: j, y: i })] = cellDiv;
+      rowDiv.append(cellDiv);
+    }
+  }
+  document.body.replaceChildren(outerDiv);
+};
+
+const clearBoard = () => {
+  Object.entries(divs).forEach(([, div]) => {
+    div.className = "cell";
+  });
+};
+
 export const renderGameBoard = (state: GameState) => {
   const chars = {
-    [state.player.coords]: "player",
+    [state.player.coords]: ["player"],
     ...Object.keys(state.zombies).reduce((map, key) => {
       return {
         ...map,
-        [key]: "zombie",
+        [key]: ["zombie"],
       };
     }, {}),
     ...Object.keys(state.eggs).reduce((map, key) => {
       return {
         ...map,
-        [key]: "egg e-time-" + state.eggs[key as CoordsString].hatchTime,
+        [key]: ["egg", "e-time-" + state.eggs[key as CoordsString].hatchTime],
       };
     }, {}),
-  };
-  console.log(chars);
+  } as Record<string, string[]>;
+
+  for (let i = 0; i < GAME_BOARD_HEIGHT; i++) {
+    for (let j = 0; j < GAME_BOARD_WIDTH; j++) {
+      const zombie = state.zombies[coordsToKey({ x: j, y: i })];
+      const egg = state.eggs[coordsToKey({ x: j, y: i })];
+      if (zombie && egg) {
+        chars[coordsToKey({ x: j, y: i })] = ["both"];
+      }
+    }
+  }
+
+  clearBoard();
+  Object.entries(chars).forEach(([coords, char]) => {
+    const div = divs[coords as CoordsString];
+    char.forEach((class_) => {
+      div.classList.add(class_);
+    });
+  });
+
+  console.log(
+    "Zombies",
+    Object.keys(state.zombies).length,
+    "eggs",
+    Object.keys(state.eggs).length
+  );
+
   // const cells = blankCells();
   // cells[player.y][player.x] = "player";
   // zombies.forEach(({ x, y }) => {

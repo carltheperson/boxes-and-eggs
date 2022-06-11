@@ -14,23 +14,33 @@ export const zombies = (
 ) => {
   const sChange = sTime.pipe(
     withLatestFrom(sState),
-    map(([_, state]): GameStateLamda[] => {
+    map(([, state]): GameStateLamda[] => {
       return Object.keys(state.zombies).map((key) => {
         return (state) => {
           const coordKey = key as CoordsString;
           const coords = getCoordsFromKey(coordKey);
-          const newCoords = moveRandom(coords);
-
-          if (
+          let newCoords = moveRandom(coords);
+          let attemps = 0;
+          while (
             outOfBounds(newCoords.x, newCoords.y) ||
             isOccupied(state, newCoords)
           ) {
-            return state;
+            newCoords = moveRandom(coords);
+            attemps += 1;
+            if (attemps > 4) {
+              return {
+                ...state,
+                zombies: {
+                  ...state.zombies,
+                  [coordKey]: { lastCoords: coordKey },
+                },
+              };
+            }
           }
 
           const newZombiesMap: GameState["zombies"] = {
             ...state.zombies,
-            [coordsToKey(newCoords)]: true,
+            [coordsToKey(newCoords)]: { lastCoords: coordKey },
           };
           delete newZombiesMap[coordKey];
 

@@ -3,6 +3,7 @@ import {
   GameState,
   GAME_BOARD_HEIGHT,
   GAME_BOARD_WIDTH,
+  moves,
 } from "./constants";
 
 export const outOfBounds = (x: number, y: number) => {
@@ -21,6 +22,36 @@ export const isOccupied = (
     return true;
   }
   return false;
+};
+
+export const isSurrondedByZombies = (
+  state: GameState,
+  coords: {
+    x: number;
+    y: number;
+  }
+) => {
+  const diffs = Object.entries(moves).map(([, diff]) => diff);
+  return diffs.every((diff) => {
+    const newCoords = applyMovement(coords, diff);
+    const coordsKey = coordsToKey(newCoords);
+    return state.zombies[coordsKey] || outOfBounds(newCoords.x, newCoords.y);
+  });
+};
+
+export const applyMovement = (
+  coords: {
+    x: number;
+    y: number;
+  },
+  diff: {
+    x?: number | undefined;
+    y?: number | undefined;
+  }
+) => {
+  const newX = coords.x + (diff.x || 0);
+  const newY = coords.y + (diff.y || 0);
+  return { x: newX, y: newY };
 };
 
 export const getCoordsFromKey = (coords: CoordsString) => {
