@@ -37,7 +37,7 @@ export const eggs = (
                   ...state,
                   eggs: {
                     ...state.eggs,
-                    [eggCoords]: { hatchTime: 0 },
+                    [eggCoords]: { hatchTime: 1 },
                   },
                 };
               };

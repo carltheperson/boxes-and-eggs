@@ -4,6 +4,7 @@ import {
   GameState,
   GAME_BOARD_HEIGHT,
   GAME_BOARD_WIDTH,
+  HATCH_TIME,
   moves,
 } from "./constants";
 import { coordsToKey } from "./utils";
@@ -78,17 +79,21 @@ export const renderGameBoard = (state: GameState) => {
     ...Object.keys(state.eggs).reduce((map, key) => {
       return {
         ...map,
-        [key]: ["egg", "e-time-" + state.eggs[key as CoordsString].hatchTime],
+        [key]: [
+          "egg",
+          HATCH_TIME - state.eggs[key as CoordsString].hatchTime + 1,
+        ],
       };
     }, {}),
-  } as Record<string, string[]>;
+  } as Record<string, [string, string]>;
 
   clearBoard();
   Object.entries(chars).forEach(([coords, char]) => {
     const div = divs[coords as CoordsString];
-    char.forEach((class_) => {
-      div.classList.add(class_);
-    });
+    div.classList.add(char[0]);
+    if (char.length > 1) {
+      div.dataset.meta = char[1];
+    }
   });
 
   if (state.gameOver) {
