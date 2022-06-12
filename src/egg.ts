@@ -65,7 +65,7 @@ export const eggs = (
               ...state,
               zombies: {
                 ...state.zombies,
-                [coordKey]: true,
+                [coordKey]: {},
               },
             };
           }
@@ -81,13 +81,6 @@ export const eggs = (
       });
     })
   );
-
-  // const sChange = sAddEgg.pipe(
-  //   withLatestFrom(sUpdateEgg),
-  //   map(([changes1, changes2]) => {
-  //     return [...changes1, ...changes2];
-  //   })
-  // );
 
   return { sAdd, sUpdate };
 };
