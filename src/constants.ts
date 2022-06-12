@@ -14,7 +14,7 @@ export type CoordsString = `${number}-${number}`;
 
 export type GameState = {
   player: { coords: CoordsString };
-  zombies: Record<CoordsString, { lastCoords?: CoordsString }>;
+  boxes: Record<CoordsString, { lastCoords?: CoordsString }>;
   eggs: Record<CoordsString, { hatchTime: number }>;
   gameOver: boolean;
   score: number;
@@ -23,10 +23,10 @@ export type GameState = {
 export type GameStateLamda = (currentState: GameState) => GameState;
 
 export const initialGameBoard: GameState = {
-  player: { coords: "3-3" },
-  zombies: {
-    "2-2": {},
+  player: { coords: "5-5" },
+  boxes: {
     "4-4": {},
+    "6-6": {},
   },
   eggs: {},
   gameOver: false,

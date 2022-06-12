@@ -20,7 +20,7 @@ import {
   coordsToKey,
   getCoordsFromKey,
   isOccupied,
-  isSurrondedByZombies,
+  isSurrondedByBoxes,
   outOfBounds,
 } from "./utils";
 
@@ -57,7 +57,7 @@ export const player = (sState: BehaviorSubject<GameState>) => {
         const { x: newX, y: newY } = applyMovement(coords, movement);
         const player =
           outOfBounds(newX, newY) ||
-          state.zombies[coordsToKey({ x: newX, y: newY })]
+          state.boxes[coordsToKey({ x: newX, y: newY })]
             ? coords
             : { x: newX, y: newY };
         return {
@@ -73,7 +73,7 @@ export const player = (sState: BehaviorSubject<GameState>) => {
     map((): GameStateLamda => {
       return (state) => {
         const coords = getCoordsFromKey(state.player.coords);
-        if (isSurrondedByZombies(state, coords)) {
+        if (isSurrondedByBoxes(state, coords)) {
           return {
             ...state,
             gameOver: true,

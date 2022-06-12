@@ -8,14 +8,14 @@ import {
   outOfBounds,
 } from "./utils";
 
-export const zombies = (
+export const boxes = (
   sState: BehaviorSubject<GameState>,
   sTime: Observable<number>
 ) => {
   const sChange = sTime.pipe(
     withLatestFrom(sState),
     map(([, state]): GameStateLamda[] => {
-      return Object.keys(state.zombies).map((key) => {
+      return Object.keys(state.boxes).map((key) => {
         return (state) => {
           const coordKey = key as CoordsString;
           const coords = getCoordsFromKey(coordKey);
@@ -30,21 +30,21 @@ export const zombies = (
             if (attemps > 4) {
               return {
                 ...state,
-                zombies: {
-                  ...state.zombies,
+                boxes: {
+                  ...state.boxes,
                   [coordKey]: { lastCoords: coordKey },
                 },
               };
             }
           }
 
-          const newZombiesMap: GameState["zombies"] = {
-            ...state.zombies,
+          const newBoxesMap: GameState["boxes"] = {
+            ...state.boxes,
             [coordsToKey(newCoords)]: { lastCoords: coordKey },
           };
-          delete newZombiesMap[coordKey];
+          delete newBoxesMap[coordKey];
 
-          return { ...state, zombies: newZombiesMap };
+          return { ...state, boxes: newBoxesMap };
         };
       });
     })

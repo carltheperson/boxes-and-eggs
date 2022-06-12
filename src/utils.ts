@@ -18,13 +18,13 @@ export const isOccupied = (
   }
 ) => {
   const key = coordsToKey(coords);
-  if (state.player.coords === key || state.eggs[key] || state.zombies[key]) {
+  if (state.player.coords === key || state.eggs[key] || state.boxes[key]) {
     return true;
   }
   return false;
 };
 
-export const isSurrondedByZombies = (
+export const isSurrondedByBoxes = (
   state: GameState,
   coords: {
     x: number;
@@ -35,7 +35,7 @@ export const isSurrondedByZombies = (
   return diffs.every((diff) => {
     const newCoords = applyMovement(coords, diff);
     const coordsKey = coordsToKey(newCoords);
-    return state.zombies[coordsKey] || outOfBounds(newCoords.x, newCoords.y);
+    return state.boxes[coordsKey] || outOfBounds(newCoords.x, newCoords.y);
   });
 };
 

@@ -15,19 +15,17 @@ export const eggs = (
   const sAdd = sTime.pipe(
     withLatestFrom(sState),
     map(([_, state]) => {
-      return Object.keys(state.zombies)
+      return Object.keys(state.boxes)
         .map((_, i) => {
           return Math.random() < 1 - HATCH_CHANCE
             ? null
             : (state: GameState) => {
-                const zombieCoords = Object.keys(state.zombies)[
-                  i
-                ] as CoordsString;
-                const eggCoords = state.zombies[zombieCoords].lastCoords;
+                const boxCoords = Object.keys(state.boxes)[i] as CoordsString;
+                const eggCoords = state.boxes[boxCoords].lastCoords;
 
                 if (
                   !eggCoords ||
-                  state.zombies[eggCoords] ||
+                  state.boxes[eggCoords] ||
                   state.player.coords === eggCoords
                 ) {
                   return state;
@@ -63,8 +61,8 @@ export const eggs = (
             delete state.eggs[coordKey];
             return {
               ...state,
-              zombies: {
-                ...state.zombies,
+              boxes: {
+                ...state.boxes,
                 [coordKey]: {},
               },
             };

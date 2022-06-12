@@ -78,7 +78,7 @@ button {
   background-size: contain;
 }
 
-.cell.zombie {
+.cell.box {
   background-color: rgb(219, 149, 143);
   border: 4px solid black;
   box-sizing: border-box;

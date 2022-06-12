@@ -70,10 +70,10 @@ export const sTryAgain = fromEvent(gameOverButton, "click");
 export const renderGameBoard = (state: GameState) => {
   const chars = {
     [state.player.coords]: ["player"],
-    ...Object.keys(state.zombies).reduce((map, key) => {
+    ...Object.keys(state.boxes).reduce((map, key) => {
       return {
         ...map,
-        [key]: ["zombie"],
+        [key]: ["box"],
       };
     }, {}),
     ...Object.keys(state.eggs).reduce((map, key) => {
