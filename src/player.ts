@@ -1,15 +1,20 @@
 import {
   BehaviorSubject,
+  concatMap,
+  EMPTY,
   filter,
   fromEvent,
   map,
+  merge,
   Observable,
   scan,
   startWith,
+  switchMap,
   tap,
   withLatestFrom,
 } from "rxjs";
 import { GameState, GameStateLamda } from "./constants";
+import { sTryAgain } from "./rendering";
 import {
   applyMovement,
   coordsToKey,
@@ -35,7 +40,15 @@ export const player = (sState: BehaviorSubject<GameState>) => {
     map(({ key }) => moves[key as keyof typeof moves]),
     filter((res) => Boolean(res))
   );
-  const sTime = sPlayerMovements.pipe(scan((lastTime) => lastTime + 1, 0));
+
+  const sTime = sTryAgain
+    .pipe(startWith(EMPTY))
+    .pipe(
+      switchMap(() =>
+        sPlayerMovements.pipe(scan((lastTime) => lastTime + 1, 0))
+      )
+    );
+
   const sChange = sTime.pipe(
     withLatestFrom(sState, sPlayerMovements),
     map(([, , movement]): GameStateLamda => {

@@ -1,3 +1,4 @@
+import { fromEvent } from "rxjs";
 import {
   CoordsString,
   GameState,
@@ -10,9 +11,10 @@ import { coordsToKey } from "./utils";
 // Ah beautiful stateful code
 
 const divs: Record<CoordsString, HTMLDivElement> = {};
+let outerDiv: HTMLDivElement | null = null;
 
 export const createBoard = () => {
-  const outerDiv = document.createElement("div");
+  outerDiv = document.createElement("div");
   outerDiv.classList.add("outer");
   for (let i = 0; i < GAME_BOARD_HEIGHT; i++) {
     const rowDiv = document.createElement("div");
@@ -58,6 +60,12 @@ const updateScore = (score: number) => {
   scoreEl.innerText = "Score: " + score;
 };
 
+const gameOverButton = document.createElement("button");
+gameOverButton.innerText = "Game Over. Try again?";
+gameOverButton.style.display = "none";
+document.querySelector(".score-container")?.before(gameOverButton);
+export const sTryAgain = fromEvent(gameOverButton, "click");
+
 export const renderGameBoard = (state: GameState) => {
   const chars = {
     [state.player.coords]: ["player"],
@@ -84,8 +92,11 @@ export const renderGameBoard = (state: GameState) => {
   });
 
   if (state.gameOver) {
-    (document.querySelector(".outer") as HTMLDivElement).style.backgroundColor =
-      "red";
+    gameOverButton.style.display = "block";
+    document.body.classList.add("game-over");
+  } else {
+    document.body.classList.remove("game-over");
+    gameOverButton.style.display = "none";
   }
 
   updateScore(state.score);

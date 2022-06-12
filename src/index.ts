@@ -1,9 +1,9 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, fromEvent, merge } from "rxjs";
 import { map, withLatestFrom, tap } from "rxjs/operators";
 import { GameStateLamda, initialGameBoard } from "./constants";
 import { eggs } from "./egg";
 import { player } from "./player";
-import { createBoard, renderGameBoard } from "./rendering";
+import { createBoard, renderGameBoard, sTryAgain } from "./rendering";
 import { zombies } from "./zombie";
 
 createBoard();
@@ -14,8 +14,8 @@ const { sTime, sGameOver, sChange: sPlayerChange } = player(sState);
 const { sChange: sZombiesChange } = zombies(sState, sTime);
 const { sAdd: sChangeEggAdd, sUpdate: sChangeEggUpdate } = eggs(sState, sTime);
 
-sPlayerChange
-  .pipe(
+merge(
+  sPlayerChange.pipe(
     withLatestFrom(
       sTime,
       sState,
@@ -44,7 +44,8 @@ sPlayerChange
         };
       }
     )
-  )
-  .subscribe((state) => sState.next(state));
+  ),
+  sTryAgain.pipe(map(() => initialGameBoard))
+).subscribe((state) => sState.next(state));
 
 sState.subscribe((state) => renderGameBoard(state));

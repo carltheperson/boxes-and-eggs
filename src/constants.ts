@@ -1,5 +1,5 @@
-export const GAME_BOARD_WIDTH = 8;
-export const GAME_BOARD_HEIGHT = 8;
+export const GAME_BOARD_WIDTH = 12;
+export const GAME_BOARD_HEIGHT = 12;
 export const HATCH_TIME = 10;
 export const HATCH_CHANCE = 0.1;
 
