@@ -25,6 +25,16 @@ h2 {
   font-size: 20px;
 }
 
+p {
+  font-size: 14px;
+  text-align: center;
+  opacity: 0.6;
+}
+
+a {
+  color:rgb(49, 88, 98)
+}
+
 button {
   font-size: 30px;
   background-color: rgb(255, 110, 110);
@@ -41,6 +51,7 @@ button {
   flex-direction: column;
   align-items: stretch;
   height: var(--width);
+  margin-bottom: 20px;
 }
 
 .row {
