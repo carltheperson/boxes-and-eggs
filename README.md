@@ -50,7 +50,7 @@ The game ends if your player is surrounded on all sides by boxes.
 
 This is a toy project meant to help me learn the patterns of Functional Reactive Programming ([FRP](https://en.wikipedia.org/wiki/Functional_reactive_programming)). It's made with inspiration and knowledge from the book [Functional Reactive Programming by Stephen Blackheath and Anthony Jones](https://www.manning.com/books/functional-reactive-programming).
 
-# How game is structured
+# How the game is structured
 
 Below is a diagram that illustrates how the game is structured.
 
