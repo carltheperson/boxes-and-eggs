@@ -1,6 +1,6 @@
 <h1 align="center">Boxes and Eggs</h1>
 
-<p align="center"><b><a href="https://boxes-and-eggs.web.app/">Play with the live demo</a></b></p>
+<p align="center"><b><a href="https://boxes-and-eggs.firebaseapp.com/">Play with the live demo</a></b></p>
 
 <p align="center">
 	<img width="750px" src="images/screenshot.png" alt="screenshot">
