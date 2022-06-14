@@ -1,7 +1,9 @@
 export const GAME_BOARD_WIDTH = 12;
 export const GAME_BOARD_HEIGHT = 12;
 export const HATCH_TIME = 10;
-export const HATCH_CHANCE = 0.1;
+export const HIGHET_HATCH_CHANCE = 0.1;
+export const HATCH_CHANCE_DELTA = 0.05;
+export const BOX_AMOUNT_FOR_LOWEST_HATCH_DELTA = 15;
 
 export const moves = {
   ArrowUp: { y: -1 },

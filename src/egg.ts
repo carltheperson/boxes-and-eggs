@@ -3,10 +3,11 @@ import {
   CoordsString,
   GameState,
   GameStateLamda,
-  HATCH_CHANCE,
+  HIGHET_HATCH_CHANCE,
   HATCH_TIME,
+  BOX_AMOUNT_FOR_LOWEST_HATCH_DELTA,
+  HATCH_CHANCE_DELTA,
 } from "./constants";
-import { coordsToKey, getCoordsFromKey, isOccupied } from "./utils";
 
 export const eggs = (
   sState: BehaviorSubject<GameState>,
@@ -17,7 +18,13 @@ export const eggs = (
     map(([_, state]) => {
       return Object.keys(state.boxes)
         .map((_, i) => {
-          return Math.random() < 1 - HATCH_CHANCE
+          const boxesAmount = Object.keys(state.boxes).length;
+          const max = BOX_AMOUNT_FOR_LOWEST_HATCH_DELTA;
+          const boxesAmountCapped = boxesAmount > max ? max : boxesAmount;
+          const chance =
+            HIGHET_HATCH_CHANCE -
+            (boxesAmountCapped / max) * HATCH_CHANCE_DELTA;
+          return Math.random() < 1 - chance
             ? null
             : (state: GameState) => {
                 const boxCoords = Object.keys(state.boxes)[i] as CoordsString;
