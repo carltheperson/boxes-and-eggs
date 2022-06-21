@@ -1,5 +1,11 @@
 :root {
   --width: min(min(90vw, max(90vh, 600px)), 1000px);
+  --padding-between: 8px;
+  --cell-width: calc(var(--width) / 12);
+  --animation-length: 0.5s;
+  --egg-shape: 50% 60% 50% 50% / 70% 70% 40% 40%;
+  --egg-color: #fae5c0;
+  --box-color: rgb(219, 149, 143);
 }
 
 body {
@@ -46,12 +52,36 @@ button {
   cursor: pointer;
 }
 
+.board-container {
+  position: relative;
+}
+
+.outer.background {
+  z-index: 1;
+}
+.outer.main {
+  z-index: 2;
+}
+
 .outer {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   height: var(--width);
   margin-bottom: 20px;
+}
+
+.outer.main {
+  position: absolute;
+}
+
+.outer.background .cell {
+  border: 4px solid rgb(214, 214, 214);
+}
+
+.outer.background .cell:not(.egg) {
+  box-shadow: 5px 5px 2px 2px #586e7411;
+  background-color: rgb(197, 197, 197);
 }
 
 .row {
@@ -64,17 +94,47 @@ button {
 
 .cell {
   margin: 4px;
-  background-color: rgb(197, 197, 197);
   display: flex;
   flex-basis: 100%;
   justify-content: center;
   align-content: center;
   align-items: center;
   box-sizing: border-box;
-  border: 4px solid rgb(214, 214, 214);
-  box-shadow: 5px 5px 2px 2px #586e7411;
+  border: 4px solid rgb(214, 214, 214, 0);
 }
 
+@keyframes move-up {
+  0% { top: calc(var(--cell-width)*-1) }
+  100% { top: 0}
+}
+
+@keyframes move-down {
+  0% { top: calc(var(--cell-width)) }
+  100% { top: 0}
+}
+
+@keyframes move-left {
+  0% { right: calc(var(--cell-width)) }
+  100% { right: 0}
+}
+
+@keyframes move-right {
+  0% { left: calc(var(--cell-width)) }
+  100% { left: 0}
+}
+
+.cell.right {
+  animation: move-left var(--animation-length) forwards;
+}
+.cell.left {
+  animation: var(--animation-length) forwards move-right;
+}
+.cell.down {
+  animation: var(--animation-length) forwards move-up;
+}
+.cell.up {
+  animation: var(--animation-length) forwards move-down;
+}
 
 .cell.player {
   background-color: rgb(0, 134, 168);
@@ -82,15 +142,38 @@ button {
   opacity: 1;
   background-image: url("images/smiley-player.png");
   background-size: contain;
+  position: relative;
 }
 
 .cell.box {
-  background-color: rgb(219, 149, 143);
+  background-color: var(--box-color);
   border: 4px solid black;
   box-sizing: border-box;
   opacity: 1;
   background-image: url("images/smiley-box.png");
   background-size: contain;
+  position: relative;
+}
+
+@keyframes hatch {
+  0% {
+    border-radius: var(--egg-shape);
+    background-color: var(--egg-color);
+    transform: scale(0.75);
+  }
+  100% {
+    border-radius: 0px;
+    background-color: var(--box-color);
+    transform: scale(1);
+  } 
+}
+
+.box.new-hatchling {
+  animation: var(--animation-length) forwards hatch;
+}
+
+.cell.hide {
+  opacity: 0;
 }
 
 .cell.egg::before {
@@ -105,10 +188,10 @@ button {
 }
 
 .cell.egg {
-  background: #fae5c0;
+  background: var(--egg-color);
   display: block;
   position: relative;
-  border-radius: 50% 60% 50% 50% / 70% 70% 40% 40%;
+  border-radius: var(--egg-shape);
 }
 
 

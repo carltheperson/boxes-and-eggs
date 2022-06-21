@@ -57,12 +57,22 @@ export const eggs = (
       return Object.keys(state.eggs).map((key) => {
         return (state) => {
           const coordKey = key as CoordsString;
-          if (state.player.coords === coordKey) {
+          const { hatchTime, crushNextRound } = state.eggs[coordKey];
+
+          if (crushNextRound) {
             delete state.eggs[coordKey];
             return state;
           }
 
-          const { hatchTime } = state.eggs[coordKey];
+          if (state.player.coords === coordKey) {
+            return {
+              ...state,
+              eggs: {
+                ...state.eggs,
+                [coordKey]: { hatchTime, crushNextRound: true },
+              },
+            };
+          }
 
           if (hatchTime == HATCH_TIME) {
             delete state.eggs[coordKey];
@@ -70,7 +80,7 @@ export const eggs = (
               ...state,
               boxes: {
                 ...state.boxes,
-                [coordKey]: {},
+                [coordKey]: { newHatchling: true },
               },
             };
           }
@@ -79,7 +89,7 @@ export const eggs = (
             ...state,
             eggs: {
               ...state.eggs,
-              [coordKey]: { hatchTime: hatchTime + 1 },
+              [coordKey]: { hatchTime: hatchTime + 1, crushNextRound: false },
             },
           };
         };

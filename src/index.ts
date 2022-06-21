@@ -6,8 +6,6 @@ import { player } from "./player";
 import { createBoard, renderGameBoard, sTryAgain } from "./rendering";
 import { boxes } from "./boxes";
 
-createBoard();
-
 const sState = new BehaviorSubject(initialGameBoard);
 
 const { sTime, sGameOver, sChange: sPlayerChange } = player(sState);

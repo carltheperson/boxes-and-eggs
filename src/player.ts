@@ -11,6 +11,8 @@ import {
   startWith,
   switchMap,
   tap,
+  throttle,
+  throttleTime,
   withLatestFrom,
 } from "rxjs";
 import { GameState, GameStateLamda } from "./constants";
@@ -38,7 +40,8 @@ export const player = (sState: BehaviorSubject<GameState>) => {
   const sKeydown = fromEvent<KeyboardEvent>(document, "keydown");
   const sPlayerMovements: Observable<PCoords> = sKeydown.pipe(
     map(({ key }) => moves[key as keyof typeof moves]),
-    filter((res) => Boolean(res))
+    filter((res) => Boolean(res)),
+    throttleTime(200)
   );
 
   const sTime = sTryAgain
@@ -62,7 +65,10 @@ export const player = (sState: BehaviorSubject<GameState>) => {
             : { x: newX, y: newY };
         return {
           ...state,
-          player: { coords: coordsToKey(player) },
+          player: {
+            coords: coordsToKey(player),
+            lastCoords: state.player.coords,
+          },
         };
       };
     })

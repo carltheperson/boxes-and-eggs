@@ -9,14 +9,12 @@ import {
 } from "./constants";
 import { coordsToKey } from "./utils";
 
-// Ah beautiful stateful code
+// I know this code sucks but don't hate it's IO
 
-const divs: Record<CoordsString, HTMLDivElement> = {};
-let outerDiv: HTMLDivElement | null = null;
-
-export const createBoard = () => {
-  outerDiv = document.createElement("div");
-  outerDiv.classList.add("outer");
+export const createBoard = (...outerClass: string[]) => {
+  const divs: Record<CoordsString, HTMLDivElement> = {};
+  const outerDiv = document.createElement("div");
+  outerDiv.classList.add(...outerClass);
   for (let i = 0; i < GAME_BOARD_HEIGHT; i++) {
     const rowDiv = document.createElement("div");
     outerDiv.append(rowDiv);
@@ -28,8 +26,12 @@ export const createBoard = () => {
       rowDiv.append(cellDiv);
     }
   }
-  document.querySelector(".container")!.append(outerDiv);
+  document.querySelector(".board-container")!.append(outerDiv);
+  return divs;
 };
+
+const divs = createBoard("outer", "main");
+const backgroundDivs = createBoard("outer", "background");
 
 // Prevent arrow keys moving page donw
 document.addEventListener("keydown", (e) => {
@@ -38,9 +40,28 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-const clearBoard = () => {
+const clearBoard = (divs: Record<`${number}-${number}`, HTMLDivElement>) => {
   Object.entries(divs).forEach(([, div]) => {
     div.className = "cell";
+  });
+};
+
+const applyChars = (
+  chars: Record<
+    string,
+    {
+      classes: string[];
+      meta?: string | undefined;
+    }
+  >,
+  divs: Record<`${number}-${number}`, HTMLDivElement>
+) => {
+  Object.entries(chars).forEach(([key, { classes, meta }]) => {
+    const div = divs[key as CoordsString];
+    div.classList.add(...classes);
+    if (meta) {
+      div.dataset.meta = meta;
+    }
   });
 };
 
@@ -68,42 +89,100 @@ document.querySelector(".score-container")?.before(gameOverButton);
 export const sTryAgain = fromEvent(gameOverButton, "click");
 
 export const renderGameBoard = (state: GameState) => {
+  console.log(JSON.stringify(state));
   const chars = {
-    [state.player.coords]: ["player"],
-    ...Object.keys(state.boxes).reduce((map, key) => {
-      return {
-        ...map,
-        [key]: ["box"],
-      };
-    }, {}),
+    [state.player.coords]: {
+      classes: [
+        "player",
+        ...(state.player.lastCoords
+          ? [coordsToDirection(state.player.coords, state.player.lastCoords)]
+          : []),
+      ],
+    },
+    ...Object.entries(state.boxes).reduce(
+      (map, [key, { lastCoords, newHatchling }]) => {
+        return {
+          ...map,
+          [key]: {
+            classes: [
+              "box",
+              ...(lastCoords ? [coordsToDirection(key, lastCoords)] : []),
+              ...(newHatchling ? ["new-hatchling"] : []),
+            ],
+          },
+        };
+      },
+      {}
+    ),
+  } as Record<string, { classes: string[]; meta?: string }>;
+
+  const backgroundChars = {
     ...Object.keys(state.eggs).reduce((map, key) => {
       return {
         ...map,
-        [key]: [
-          "egg",
-          HATCH_TIME - state.eggs[key as CoordsString].hatchTime + 1,
-        ],
+        [key]: {
+          classes: ["egg"],
+          meta: HATCH_TIME - state.eggs[key as CoordsString].hatchTime + 1,
+        },
       };
     }, {}),
-  } as Record<string, [string, string]>;
+    ...Object.keys(state.boxes).reduce((map, key) => {
+      if (state.boxes[key as CoordsString].newHatchling) {
+        return {
+          ...map,
+          [key]: { classes: ["hide"] },
+        };
+      }
+      return map;
+    }, {}),
+  };
 
-  clearBoard();
-  Object.entries(chars).forEach(([coords, char]) => {
-    const div = divs[coords as CoordsString];
-    div.classList.add(char[0]);
-    if (char.length > 1) {
-      div.dataset.meta = char[1];
+  clearAnimations(divs);
+  setTimeout(() => {
+    clearBoard(divs);
+    clearBoard(backgroundDivs);
+    applyChars(backgroundChars, backgroundDivs);
+    applyChars(chars, divs);
+    if (state.gameOver) {
+      gameOverButton.style.display = "block";
+      document.body.classList.add("game-over");
+    } else {
+      document.body.classList.remove("game-over");
+      gameOverButton.style.display = "none";
     }
-  });
 
-  if (state.gameOver) {
-    gameOverButton.style.display = "block";
-    document.body.classList.add("game-over");
-  } else {
-    document.body.classList.remove("game-over");
-    gameOverButton.style.display = "none";
-  }
-
-  updateScore(state.score);
-  updateHighScore(state.score);
+    updateScore(state.score);
+    updateHighScore(state.score);
+  }, 5);
 };
+
+function coordsToDirection(current: string, past: string) {
+  const [currentX, currentY] = current.split("-").map((v) => parseInt(v));
+  const [pastX, pastY] = past.split("-").map((v) => parseInt(v));
+  console.log(
+    currentX !== pastX ? (currentX > pastX ? "right" : "left") : null,
+    currentY !== pastY ? (currentY > pastY ? "down" : "up") : null,
+    current,
+    past
+  );
+  const values = [
+    currentX !== pastX ? (currentX > pastX ? "right" : "left") : null,
+    currentY !== pastY ? (currentY > pastY ? "down" : "up") : null,
+  ];
+  if (currentX !== pastX) {
+    return currentX > pastX ? "right" : "left";
+  }
+  if (currentY !== pastY) {
+    return currentY > pastY ? "down" : "up";
+  }
+  return "thing";
+}
+
+function clearAnimations(divs: Record<`${number}-${number}`, HTMLDivElement>) {
+  Object.entries(divs).forEach(([, div]) => {
+    div.classList.remove("up");
+    div.classList.remove("down");
+    div.classList.remove("left");
+    div.classList.remove("right");
+  });
+}

@@ -12,12 +12,17 @@ export const moves = {
   ArrowRight: { x: 1 },
 } as const;
 
+// Yes I'm counting types as constants. Sue me.
+
 export type CoordsString = `${number}-${number}`;
 
 export type GameState = {
-  player: { coords: CoordsString };
-  boxes: Record<CoordsString, { lastCoords?: CoordsString }>;
-  eggs: Record<CoordsString, { hatchTime: number }>;
+  player: { coords: CoordsString; lastCoords?: CoordsString };
+  boxes: Record<
+    CoordsString,
+    { lastCoords?: CoordsString; newHatchling?: boolean }
+  >;
+  eggs: Record<CoordsString, { hatchTime: number; crushNextRound?: boolean }>;
   gameOver: boolean;
   score: number;
 };
