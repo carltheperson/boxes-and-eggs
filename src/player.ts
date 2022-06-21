@@ -39,6 +39,9 @@ type PCoords = Partial<Coords>;
 export const player = (sState: BehaviorSubject<GameState>) => {
   const sKeydown = fromEvent<KeyboardEvent>(document, "keydown");
   const sPlayerMovements: Observable<PCoords> = sKeydown.pipe(
+    withLatestFrom(sState),
+    filter(([, state]) => !state.gameOver),
+    map(([key]) => key),
     map(({ key }) => moves[key as keyof typeof moves]),
     filter((res) => Boolean(res)),
     throttleTime(200)
